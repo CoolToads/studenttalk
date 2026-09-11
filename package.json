@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "worker:dev": "wrangler dev worker/index.js",
+    "worker:deploy": "wrangler deploy worker/index.js"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.21.0",
     "@vitejs/plugin-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "wrangler": "latest"
   }
 }
