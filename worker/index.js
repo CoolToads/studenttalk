@@ -7,7 +7,7 @@ function json(data, status = 200, origin = allowedOrigin) {
       'content-type': 'application/json; charset=utf-8',
       'access-control-allow-origin': origin,
       'access-control-allow-headers': 'content-type, x-user-email, x-user-name',
-      'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
+      'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'vary': 'Origin',
     },
   })
@@ -24,7 +24,7 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers: {
       'access-control-allow-origin': origin,
       'access-control-allow-headers': 'content-type, x-user-email, x-user-name',
-      'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
+      'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
     } })
 
     const url = new URL(request.url)
