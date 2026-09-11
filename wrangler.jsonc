@@ -1,14 +1,16 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "student-talk-api",
-  "main": "worker/index.js",
-  "compatibility_date": "2026-09-11",
-  "observability": { "enabled": true },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "student-talk",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
-    }
-  ]
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "student-talk-api",
+	"main": "worker/index.js",
+	"compatibility_date": "2026-09-11",
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "student-talk",
+			"database_id": "7c6dda98-1f30-4668-b57a-5b1b169442f7"
+		}
+	]
 }
