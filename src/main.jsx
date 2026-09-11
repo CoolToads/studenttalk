@@ -1,6 +1,18 @@
-import { StrictMode, useState } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { PublicClientApplication } from '@azure/msal-browser'
 import './styles.css'
+
+const microsoftClientId = import.meta.env.VITE_MICROSOFT_CLIENT_ID
+const microsoftRedirectUri = `${window.location.origin}${import.meta.env.BASE_URL}`
+const msalInstance = microsoftClientId ? new PublicClientApplication({
+  auth: {
+    clientId: microsoftClientId,
+    authority: 'https://login.microsoftonline.com/common',
+    redirectUri: microsoftRedirectUri,
+  },
+  cache: { cacheLocation: 'sessionStorage' },
+}) : null
 
 const channels = ['general', 'homework-help', 'study-groups', 'off-topic']
 const initialMessages = [
@@ -8,17 +20,62 @@ const initialMessages = [
   { name: 'Jordan Williams', initials: 'JW', color: 'gold', time: '9:44 AM', text: 'I am in. I can bring my notes from the last lab.' },
   { name: 'Alex Rivera', initials: 'AR', color: 'blue', time: '9:47 AM', text: 'Same here! Thursday after school works best for me.' },
 ]
-const blockedWords = ['badword', 'idiot', 'stupid']
+const blockedWords = ['badword', 'idiot', 'stupid', "motherfucker", "bitch", "asshole", "dumbass", "dickhead", "faggot", "cunt", "slut", "whore", "nigger", "nigga", "retard", "retarded"]
 const filterText = (text) => blockedWords.reduce((result, word) => result.replace(new RegExp(word, 'gi'), '•••'), text)
 
 function MicrosoftLogo() { return <span className="ms-logo"><i /><i /><i /><i /></span> }
 function Avatar({ initials, color, online = false }) { return <div className={`avatar ${color}`}>{initials}{online && <span className="online" />}</div> }
 
 function Login({ onLogin }) {
+  const [loginError, setLoginError] = useState('')
+  const [isLoading, setIsLoading] = useState(Boolean(msalInstance))
+  const [isSigningIn, setIsSigningIn] = useState(false)
+
+  useEffect(() => {
+    if (!msalInstance) {
+      setIsLoading(false)
+      return
+    }
+    let mounted = true
+    const finishRedirectLogin = async () => {
+      try {
+        await msalInstance.initialize()
+        const response = await msalInstance.handleRedirectPromise()
+        const account = response?.account ?? msalInstance.getAllAccounts()[0]
+        if (!account) return
+        msalInstance.setActiveAccount(account)
+        await msalInstance.acquireTokenSilent({ scopes: ['User.Read'], account })
+        if (mounted) onLogin(account)
+      } catch (error) {
+        if (mounted) setLoginError(error instanceof Error ? error.message : 'Microsoft sign-in could not be completed.')
+      } finally {
+        if (mounted) setIsLoading(false)
+      }
+    }
+    finishRedirectLogin()
+    return () => { mounted = false }
+  }, [onLogin])
+
+  const startMicrosoftLogin = async () => {
+    if (!msalInstance) {
+      setLoginError('Microsoft OAuth is not configured yet. Add VITE_MICROSOFT_CLIENT_ID to enable school sign-in.')
+      return
+    }
+    setIsSigningIn(true)
+    setLoginError('')
+    try {
+      await msalInstance.initialize()
+      await msalInstance.loginRedirect({ scopes: ['openid', 'profile', 'email', 'User.Read'] })
+    } catch (error) {
+      setIsSigningIn(false)
+      setLoginError(error instanceof Error ? error.message : 'Microsoft sign-in could not be started.')
+    }
+  }
   return <main className="login-page"><div className="glow glow-one" /><div className="glow glow-two" /><section className="login-card">
     <div className="brand"><strong>ST</strong><span>Student Talk</span></div>
     <div className="login-copy"><small>A CALMER PLACE TO CONNECT</small><h1>Find your people.<br /><em>Build your space.</em></h1><p>A focused community for students to collaborate, share ideas, and make school feel a little more connected.</p></div>
-    <button className="microsoft-login" onClick={onLogin}><MicrosoftLogo /> Continue with Microsoft <b>→</b></button>
+    <button className="microsoft-login" onClick={msalInstance ? startMicrosoftLogin : onLogin} disabled={isLoading || isSigningIn}><MicrosoftLogo /> {isLoading ? 'Checking your session...' : isSigningIn ? 'Redirecting to Microsoft...' : 'Continue with Microsoft'} <b>→</b></button>
+    {loginError && <p className="login-error">{loginError}</p>}
     <p className="login-note">Sign in with your school Microsoft account</p>
     <div className="trust">✓ Protected by your school account <span>·</span> Kind by design</div>
   </section><footer>Student Talk <span>•</span> Built for better conversations</footer></main>
