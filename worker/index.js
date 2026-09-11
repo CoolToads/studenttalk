@@ -1,4 +1,4 @@
-const allowedOrigin = 'https://jonathanp123yay.github.io'
+const allowedOrigin = 'https://cooltoads.github.io'
 
 function getOrigin(request) {
   const origin = request.headers.get('Origin')
