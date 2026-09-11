@@ -7,3 +7,10 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS messages_channel_created_at ON messages(channel, created_at);
+
+CREATE TABLE IF NOT EXISTS profiles (
+  email TEXT PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
