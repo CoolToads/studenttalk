@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:electron": "vite build --mode electron",
+    "electron": "npm run build:electron && electron .",
+    "dist": "npm run build:electron && electron-builder",
     "preview": "vite preview",
     "worker:dev": "wrangler dev worker/index.js",
     "worker:deploy": "wrangler deploy worker/index.js"
@@ -15,7 +18,39 @@
     "@vitejs/plugin-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "vite": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-updater": "^6.6.2",
     "wrangler": "latest"
+  },
+  "build": {
+    "appId": "com.jprghub.studenttalk",
+    "productName": "Student Talk",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "publish": {
+      "provider": "github",
+      "owner": "JonathanP123yay",
+      "repo": "studenttalk"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
   }
 }
